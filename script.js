@@ -213,6 +213,12 @@ async function convertPdfToJpg() {
 // Function to download the JPGs as a ZIP file
 async function downloadJPGsAsZip() {
   const zip = new JSZip();
+  
+  // Get the original file name and replace .pdf extension with .zip
+  const originalFileName = fileInput.files[0].name;
+  const zipFileName = originalFileName.toLowerCase().endsWith('.pdf') 
+    ? originalFileName.slice(0, -4) + '.zip' 
+    : originalFileName + '.zip';
 
   for (let i = 0; i < images.length; i++) {
     const img = images[i];
@@ -224,6 +230,6 @@ async function downloadJPGsAsZip() {
 
   const downloadLink = document.createElement("a");
   downloadLink.href = URL.createObjectURL(content);
-  downloadLink.download = "images.zip";
+  downloadLink.download = zipFileName;
   downloadLink.click();
 }
