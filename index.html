@@ -6,130 +6,75 @@
     <title>PDF to JPG Converter</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.1.81/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      }
-
-      body {
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: linear-gradient(135deg, #ff8a00, #ff5100);
-      }
-
-      .container {
-        background: rgba(255, 255, 255, 0.95);
-        padding: 2rem;
-        border-radius: 1rem;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        max-width: 90%;
-        width: 500px;
-      }
-
-      h1 {
-        color: #ff5100;
-        margin-bottom: 1.5rem;
-        font-size: 1.8rem;
-      }
-
-      .upload-area {
-        border: 2px dashed #ff8a00;
-        border-radius: 0.5rem;
-        padding: 2rem 1rem;
-        margin-bottom: 1.5rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .upload-area:hover {
-        border-color: #ff5100;
-        background: rgba(255, 138, 0, 0.05);
-      }
-
-      #pdfFile {
-        display: none;
-      }
-
-      .upload-text {
-        color: #666;
-        margin-bottom: 0.5rem;
-      }
-
-      .file-name {
-        color: #ff5100;
-        font-weight: 500;
-        margin-top: 0.5rem;
-        word-break: break-all;
-      }
-
-      button {
-        background: linear-gradient(to right, #ff8a00, #ff5100);
-        color: white;
-        border: none;
-        padding: 0.8rem 1.5rem;
-        border-radius: 0.5rem;
-        cursor: pointer;
-        font-weight: 500;
-        transition: transform 0.2s ease;
-        margin: 0.5rem;
-        min-width: 200px;
-      }
-
-      button:hover {
-        transform: translateY(-2px);
-      }
-
-      button:active {
-        transform: translateY(0);
-      }
-
-      button:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-      }
-
-      #downloadButton {
-        background: linear-gradient(to right, #ff5100, #ff8a00);
-      }
-
-      .progress {
-        height: 4px;
-        width: 100%;
-        background: #eee;
-        border-radius: 2px;
-        margin-top: 1rem;
-        overflow: hidden;
-        display: none;
-      }
-
-      .progress-bar {
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(to right, #ff8a00, #ff5100);
-        transition: width 0.3s ease;
-      }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
     <div class="container">
-      <h1>PDF to JPG Converter</h1>
+      <div class="title-container">
+        <h1>PDF to JPG Converter</h1>
+        <button id="resetButton" class="reset-button" title="Reset All">
+          <i class="fas fa-redo-alt"></i>
+        </button>
+      </div>
       <div class="upload-area" id="uploadArea">
         <p class="upload-text">Click or drag PDF file here to upload</p>
         <input type="file" id="pdfFile" accept="application/pdf" />
         <p class="file-name" id="fileName"></p>
       </div>
+      <div class="dpi-options">
+        <div class="dpi-header">
+          <p>Select DPI:</p>
+          <button class="info-button" id="dpiInfoButton" title="What is DPI?">
+            <i class="fas fa-info-circle"></i>
+          </button>
+        </div>
+        <div class="radio-group">
+          <label>
+            <input type="radio" name="dpi" value="72">
+            72 DPI
+          </label>
+          <label>
+            <input type="radio" name="dpi" value="150" checked>
+            150 DPI
+          </label>
+          <label>
+            <input type="radio" name="dpi" value="300">
+            300 DPI
+          </label>
+          <label>
+            <input type="radio" name="dpi" value="600">
+            600 DPI
+          </label>
+        </div>
+      </div>
       <button id="convertButton" disabled>Convert to JPG</button>
-      <button id="downloadButton" style="display: none">
-        Download JPGs as ZIP
-      </button>
+      <button id="downloadButton" disabled>Download JPGs as ZIP</button>
       <div class="progress" id="progress">
         <div class="progress-bar" id="progressBar"></div>
+      </div>
+    </div>
+
+    <!-- DPI Info Modal -->
+    <div id="dpiModal" class="modal">
+      <div class="modal-content">
+        <h2>Understanding DPI (Dots Per Inch)</h2>
+        <div class="modal-body">
+          <p>DPI determines the quality and size of your converted images:</p>
+          <ul>
+            <li><strong>72 DPI:</strong> Standard for web viewing, smallest file size</li>
+            <li><strong>150 DPI:</strong> Good balance between quality and size</li>
+            <li><strong>300 DPI:</strong> Professional print quality</li>
+            <li><strong>600 DPI:</strong> High-detail scanning and archival</li>
+          </ul>
+          <p>Higher DPI means better quality but larger file sizes. Choose based on your needs:</p>
+          <ul>
+            <li>Web/Email: 72-150 DPI</li>
+            <li>Printing: 300 DPI</li>
+            <li>Detailed Archives: 600 DPI</li>
+          </ul>
+        </div>
+        <button id="modalOkButton" class="modal-ok-button" autofocus>OK</button>
       </div>
     </div>
 
