@@ -1,94 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PDF to JPG Converter</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.1.81/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <div class="container">
-      <div class="title-container">
-        <h1>PDF to JPG Converter</h1>
-        <button id="resetButton" class="reset-button" title="Reset All">
-          <i class="fas fa-redo-alt"></i>
-        </button>
-      </div>
-      <div class="upload-area" id="uploadArea">
-        <p class="upload-text">Click or drag PDF file here to upload</p>
-        <input type="file" id="pdfFile" accept="application/pdf" />
-        <p class="file-name" id="fileName"></p>
-      </div>
-      <div class="dpi-options">
-        <div class="dpi-header">
-          <p>Select DPI:</p>
-          <button class="info-button" id="dpiInfoButton" title="What is DPI?">
-            <i class="fas fa-info-circle"></i>
-          </button>
-        </div>
-        <div class="radio-group">
-          <label>
-            <input type="radio" name="dpi" value="72">
-            72 DPI
-          </label>
-          <label>
-            <input type="radio" name="dpi" value="150" checked>
-            150 DPI
-          </label>
-          <label>
-            <input type="radio" name="dpi" value="300">
-            300 DPI
-          </label>
-          <label>
-            <input type="radio" name="dpi" value="600">
-            600 DPI
-          </label>
-          <label>
-            <input type="radio" name="dpi" value="1200">
-            1200 DPI
-          </label>
-          <label>
-            <input type="radio" name="dpi" value="2400">
-            2400 DPI
-          </label>
-        </div>
-      </div>
-      <button id="convertButton" disabled>Convert to JPG</button>
-      <button id="downloadButton" disabled>Download JPGs as ZIP</button>
-      <div class="progress" id="progress">
-        <div class="progress-bar" id="progressBar"></div>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF → JPG Converter</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>PDF <span>→</span> JPG</h1>
+  <p>Multi-file · Client-side · High fidelity</p>
+</header>
+
+<main>
+
+  <!-- Drop Zone -->
+  <div class="drop-zone" id="dropZone">
+    <input type="file" id="fileInput" accept=".pdf" multiple>
+    <div class="drop-icon">📄</div>
+    <h2>Drop your PDFs here</h2>
+    <p>Multiple files supported &nbsp;·&nbsp; processed entirely in-browser</p>
+  </div>
+
+  <!-- Settings -->
+  <div class="settings">
+    <div class="setting-item">
+      <label>Page Range</label>
+      <select id="pageRange">
+        <option value="all">All pages</option>
+        <option value="first">First page only</option>
+        <option value="custom">Custom range…</option>
+      </select>
+    </div>
+    <div class="setting-item" id="customRangeItem">
+      <label>Pages (e.g. 1-3, 5)</label>
+      <input type="text" id="customRange" class="custom-range-input" placeholder="1-3, 5">
+    </div>
+    <div class="setting-item">
+      <label>Scale (DPI quality)</label>
+      <div class="range-wrapper">
+        <input type="range" id="scaleRange" min="1" max="4" step="0.5" value="3">
+        <span class="range-value" id="scaleVal">3×</span>
       </div>
     </div>
-
-    <!-- DPI Info Modal -->
-    <div id="dpiModal" class="modal">
-      <div class="modal-content">
-        <h2>Understanding DPI (Dots Per Inch)</h2>
-        <div class="modal-body">
-          <p>DPI determines the quality and size of your converted images:</p>
-          <ul>
-            <li><strong>72 DPI:</strong> Standard for web viewing, smallest file size</li>
-            <li><strong>150 DPI:</strong> Good balance between quality and size</li>
-            <li><strong>300 DPI:</strong> Professional print quality</li>
-            <li><strong>600 DPI:</strong> High-detail scanning and archival</li>
-            <li><strong>1200 DPI:</strong> Ultra high quality for fine details</li>
-            <li><strong>2400 DPI:</strong> Maximum quality for professional archival</li>
-          </ul>
-          <p>Higher DPI means better quality but larger file sizes. Choose based on your needs:</p>
-          <ul>
-            <li>Web/Email: 72-150 DPI</li>
-            <li>Printing: 300 DPI</li>
-            <li>Detailed Archives: 600 DPI</li>
-            <li>Professional/Fine Art: 1200-2400 DPI</li>
-          </ul>
-        </div>
-        <button id="modalOkButton" class="modal-ok-button" autofocus>OK</button>
+    <div class="setting-item">
+      <label>JPEG Quality</label>
+      <div class="range-wrapper">
+        <input type="range" id="qualityRange" min="60" max="100" step="5" value="95">
+        <span class="range-value" id="qualityVal">95%</span>
       </div>
     </div>
+  </div>
 
-    <script src="script.js"></script>
-  </body>
+  <!-- Action Bar -->
+  <div class="action-bar">
+    <button class="btn-primary" id="convertBtn" disabled>⚡ Convert All</button>
+    <button class="btn-secondary" id="clearBtn" disabled>Clear All</button>
+    <button class="btn-dl-all" id="dlAllBtn" disabled>↓ Download All</button>
+  </div>
+
+  <!-- Overall progress -->
+  <div class="overall-progress" id="overallProgress">
+    <div class="overall-label">
+      <span id="overallText">Converting…</span>
+      <span id="overallCount">0 / 0</span>
+    </div>
+    <div class="overall-track">
+      <div class="overall-fill" id="overallFill"></div>
+    </div>
+  </div>
+
+  <!-- File Queue -->
+  <div class="queue-section" id="queueSection" style="display:none">
+    <div class="queue-header">
+      <h3>Files queued</h3>
+      <span id="queueCount">0 files</span>
+    </div>
+    <div class="queue-list" id="queueList"></div>
+  </div>
+
+  <!-- Results -->
+  <section class="results-section" id="resultsSection">
+    <p class="results-section-title">Converted images</p>
+    <div id="resultsContainer"></div>
+  </section>
+
+</main>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">✕</button>
+  <img id="lightboxImg" src="" alt="Preview">
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
 </html>
